@@ -9,6 +9,7 @@ import { dashboardApi, issuesApi } from "@/services/api";
 import { Issue, MonthlyStats } from "@/types/library";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface DashboardApiStats {
   totalBooks: number;
@@ -113,7 +114,13 @@ export default function Dashboard() {
         }
       } catch (error) {
         if (isMounted) {
-          toast.error("Failed to load dashboard data");
+          const message = axios.isAxiosError(error)
+            ? error.response?.data?.message || `Request failed (${error.response?.status ?? "network error"})`
+            : error instanceof Error
+              ? error.message
+              : "Unknown error";
+          console.error("Failed to load dashboard data:", error);
+          toast.error(`Failed to load dashboard data: ${message}`);
         }
       } finally {
         if (isMounted) {
