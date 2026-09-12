@@ -30,14 +30,16 @@ const loginUser = async (req, res) => {
 // POST /api/auth/register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const user = await User.create({ name, email, password, role: role || "student" });
+    // Public registration must never grant elevated access. Admins can create
+    // administrator accounts through the protected user-management endpoint.
+    const user = await User.create({ name, email, password, role: "student" });
 
     res.status(201).json({
       _id: user._id,

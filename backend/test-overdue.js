@@ -58,8 +58,16 @@ async function run() {
     });
     console.log(`Backdated due date to: ${overdueDate.toISOString()}`);
 
-    const returned = await api("PUT", `/issues/return/${issueId}`, {}, token);
+    const fines = await api("GET", "/fines", null, token);
+    const activeFine = fines.records.find((record) => record._id === issueId);
     const expectedMinimumFine = 40;
+
+    if (!activeFine || activeFine.fine < expectedMinimumFine) {
+      throw new Error(`Expected active overdue fine >= ₹${expectedMinimumFine}, got ₹${activeFine?.fine ?? 0}`);
+    }
+    console.log(`✅ Active overdue fine: ₹${activeFine.fine}`);
+
+    const returned = await api("PUT", `/issues/return/${issueId}`, {}, token);
 
     console.log(`Returned status: ${returned.status}`);
     console.log(`Computed fine: ₹${returned.fine}`);

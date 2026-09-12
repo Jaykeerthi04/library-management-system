@@ -13,7 +13,24 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:8080"], credentials: true }));
+const defaultOrigins = ["http://localhost:5173", "http://localhost:8080"];
+const configuredOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = [...new Set([...defaultOrigins, ...configuredOrigins])];
+
+app.use(cors({
+  origin(origin, callback) {
+    // Allow non-browser clients such as local smoke tests; enforce the allowlist
+    // for browser requests.
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Routes

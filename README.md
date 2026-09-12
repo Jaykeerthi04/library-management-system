@@ -64,6 +64,14 @@ PORT=5000
 FRONTEND_URL=http://localhost:8080
 ```
 
+`FRONTEND_URL` may contain multiple comma-separated browser origins, for example:
+
+```env
+FRONTEND_URL=http://localhost:8080,https://your-site.netlify.app
+```
+
+Public sign-up always creates a student account. Create administrator accounts through the authenticated admin Users page.
+
 For production on Render, set these in Render Environment settings (do not commit secrets).
 
 ## Free deployment guide (step by step)
